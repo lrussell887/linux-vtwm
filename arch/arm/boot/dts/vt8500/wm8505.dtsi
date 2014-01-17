@@ -290,5 +290,22 @@
 			clocks = <&clksdhc>;
 			bus-width = <4>;
 		};
+
+		keyboard@d8008800 {
+			compatible = "intel,8042";
+			reg = <0xd8008800 0x100>;
+			interrupts = <23>, <4>;
+			command-reg = <0x04>;
+			status-reg = <0x04>;
+			data-reg = <0x00>;
+			init-reset;
+		};
+
+		ethernet@d8004000 {
+			compatible = "via,velocity-vt6110";
+			reg = <0xd8004000 0x400>;
+			interrupts = <10>;
+			no-eeprom;
+		};
 	};
 };
