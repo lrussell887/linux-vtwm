@@ -124,7 +124,9 @@ static int uhci_hcd_platform_probe(struct platform_device *pdev)
 	uhci->clk = devm_clk_get_optional(&pdev->dev, NULL);
 	if (IS_ERR(uhci->clk)) {
 		ret = PTR_ERR(uhci->clk);
-		goto err_rmr;
+		if (ret != -ENOENT)
+			goto err_rmr;
+		uhci->clk = NULL;
 	}
 	ret = clk_prepare_enable(uhci->clk);
 	if (ret) {
