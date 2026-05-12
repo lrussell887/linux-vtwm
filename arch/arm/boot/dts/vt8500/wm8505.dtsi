@@ -3,6 +3,7 @@
  * wm8505.dtsi - Device tree file for Wondermedia WM8505 SoC
  *
  * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+ * Copyright (C) 2026 Logan Russell <me@lrussell.net>
  */
 
 / {
@@ -189,6 +190,26 @@
 					enable-bit = <23>;
 				};
 
+				clkdvo: dvo {
+					#clock-cells = <0>;
+					compatible = "via,vt8500-device-clock";
+					clocks = <&pllc>;
+					divisor-reg = <0x374>;
+					divisor-mask = <0x1f>;
+					enable-reg = <0x250>;
+					enable-bit = <18>;
+				};
+
+				clkpwm: pwm {
+					#clock-cells = <0>;
+					compatible = "via,vt8500-device-clock";
+					clocks = <&pllb>;
+					divisor-reg = <0x348>;
+					divisor-mask = <0x1f>;
+					enable-reg = <0x250>;
+					enable-bit = <10>;
+				};
+
 				clksdhc: sdhc {
 					#clock-cells = <0>;
 					compatible = "via,vt8500-device-clock";
@@ -219,14 +240,24 @@
 			interrupts = <0>;
 		};
 
-		fb: fb@d8050800 {
-			compatible = "wm,wm8505-fb";
-			reg = <0xd8050800 0x200>;
-		};
-
-		ge_rops@d8050400 {
+		ge_rops: ge_rops@d8050400 {
 			compatible = "wm,prizm-ge-rops";
 			reg = <0xd8050400 0x100>;
+		};
+
+		display: display@d8050800 {
+			compatible = "wm,wm8505-drm";
+			reg = <0xd8050800 0x200>, <0xd8050f00 0x100>;
+			reg-names = "govr", "vpp";
+			wmt,ge = <&ge_rops>;
+			interrupt-parent = <&intc1>;
+			interrupts = <16>;
+			clocks = <&clkdvo>;
+			status = "disabled";
+
+			port {
+				display_out: endpoint { };
+			};
 		};
 
 		uart0: serial@d8200000 {
@@ -274,6 +305,14 @@
 			reg = <0xd8380000 0x1040>;
 			interrupts = <30>;
 			clocks = <&clkuart5>;
+			status = "disabled";
+		};
+
+		pwm: pwm@d8220000 {
+			#pwm-cells = <2>;
+			compatible = "via,vt8500-pwm";
+			reg = <0xd8220000 0x10000>;
+			clocks = <&clkpwm>;
 			status = "disabled";
 		};
 
