@@ -100,6 +100,15 @@
 					clock-output-names = "plld";
 				};
 
+				clkac97: clock-ac97 {
+					compatible = "via,vt8500-device-clock";
+					#clock-cells = <0>;
+					clocks = <&pllb>;
+					enable-bit = <19>;
+					enable-reg = <0x250>;
+					clock-output-names = "ac97";
+				};
+
 				clkahb: clock-ahb {
 					compatible = "via,vt8500-device-clock";
 					#clock-cells = <0>;
@@ -244,12 +253,28 @@
 			#interrupt-cells = <2>;
 			gpio-controller;
 			#gpio-cells = <2>;
+
+			ac97_pins: ac97 {
+				wm,pins = <192 193 194 195 196>;
+				wm,function = <2>;
+			};
 		};
 
 		timer@d8130100 {
 			compatible = "via,vt8500-timer";
 			reg = <0xd8130100 0x28>;
 			interrupts = <36>;
+		};
+
+		dmac: dma-controller@d8001800 {
+			compatible = "wm,wm8505-dma";
+			reg = <0xd8001800 0x400>;
+			interrupts-extended = <&intc0 17>, <&intc0 27>, <&intc0 34>, <&intc0 40>,
+					      <&intc0 41>, <&intc0 45>, <&intc0 46>, <&intc0 51>,
+					      <&intc1 28>, <&intc1 29>, <&intc1 30>, <&intc1 31>,
+					      <&intc1 32>, <&intc1 33>, <&intc1 34>, <&intc1 35>;
+			clocks = <&clkahb>;
+			#dma-cells = <1>;
 		};
 
 		ethernet@d8004000 {
@@ -336,6 +361,18 @@
 			reg = <0xd8220000 0x10000>;
 			#pwm-cells = <2>;
 			clocks = <&clkpwm>;
+			status = "disabled";
+		};
+
+		ac97: ac97@d8290000 {
+			compatible = "wm,wm8505-ac97";
+			reg = <0xd8290000 0x10000>;
+			interrupts = <42>;
+			clocks = <&clkac97>;
+			dmas = <&dmac 18>, <&dmac 19>;
+			dma-names = "tx", "rx";
+			pinctrl-names = "default";
+			pinctrl-0 = <&ac97_pins>;
 			status = "disabled";
 		};
 
