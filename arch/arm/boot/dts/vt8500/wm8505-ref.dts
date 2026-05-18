@@ -50,3 +50,8 @@
 &pwm {
 	status = "okay";
 };
+
+&ac97 {
+	status = "okay";
+	speaker-gpios = <&pinctrl 3 1>;
+};
