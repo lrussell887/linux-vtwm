@@ -8,6 +8,7 @@
 
 /dts-v1/;
 
+#include <dt-bindings/gpio/gpio.h>
 #include "wm8505.dtsi"
 
 / {
@@ -33,6 +34,11 @@
 			};
 		};
 	};
+};
+
+&ac97 {
+	speaker-gpios = <&pinctrl 3 GPIO_ACTIVE_LOW>;
+	status = "okay";
 };
 
 &display {
