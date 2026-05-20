@@ -192,6 +192,7 @@ static int __init vt8500_irq_init(struct device_node *node,
 {
 	int irq, i;
 	struct device_node *np = node;
+	struct irq_data *data;
 
 	if (active_cnt == VT8500_INTC_MAX) {
 		pr_err("%s: Interrupt controllers > VT8500_INTC_MAX\n",
@@ -232,6 +233,9 @@ static int __init vt8500_irq_init(struct device_node *node,
 
 		for (i = 0; i < 8; i++) {
 			irq = irq_of_parse_and_map(np, i);
+			data = irq_get_irq_data(irq);
+			if (WARN_ON(irq_domain_activate_irq(data, false)))
+				continue;
 			enable_irq(irq);
 		}
 
