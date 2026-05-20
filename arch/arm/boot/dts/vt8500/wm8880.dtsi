@@ -1,29 +1,26 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-/*
- * wm8850.dtsi - Device tree file for Wondermedia WM8850 SoC
- *
- * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
- */
+#include <dt-bindings/interrupt-controller/arm-gic.h>
 
 / {
+	compatible = "wm,wm8880";
 	#address-cells = <1>;
 	#size-cells = <1>;
-	compatible = "wm,wm8850";
 
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		enable-method = "wm,prizm-smp";
 
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
-			reg = <0x0>;
+			reg = <0>;
 		};
-	};
 
-	memory {
-		device_type = "memory";
-		reg = <0x0 0x0>;
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a9";
+			reg = <1>;
+		};
 	};
 
 	aliases {
@@ -37,27 +34,36 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "simple-bus";
-		ranges;
-		interrupt-parent = <&intc0>;
+		interrupt-parent = <&gic>;
 
-		intc0: interrupt-controller@d8140000 {
-			compatible = "via,vt8500-intc";
+		gic: arm-gic@d8019000 {
+			compatible = "arm,cortex-a9-gic";
 			interrupt-controller;
-			reg = <0xd8140000 0x10000>;
-			#interrupt-cells = <1>;
+			#interrupt-cells = <3>;
+			reg = <0xd8019000 0x1000>,
+			      <0xd8018100 0x100>;
 		};
 
-		/* Secondary IC cascaded to intc0 */
-		intc1: interrupt-controller@d8150000 {
-			compatible = "via,vt8500-intc";
-			interrupt-controller;
-			#interrupt-cells = <1>;
-			reg = <0xD8150000 0x10000>;
-			interrupts = <56 57 58 59 60 61 62 63>;
+		twd-timer@d8018600 {
+			compatible = "arm,cortex-a9-twd-timer";
+			reg = <0xd8018600 0x20>;
+			interrupts = <GIC_PPI 13
+			  (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_HIGH)>;
+		};
+
+		scu: snoop-control-unit@d8018000 {
+			compatible = "arm,cortex-a9-scu";
+			reg = <0xd8018000 0x58>;
+		};
+
+		/* PMC Hibernation scratch pad register 7 is the reset vector for CPU1 */
+		hsp7@d813004c {
+			compatible = "wm,secondary-cpu-vector";
+			reg = <0xd813004c 0x4>;
 		};
 
 		pinctrl: pinctrl@d8110000 {
-			compatible = "wm,wm8850-pinctrl";
+			compatible = "wm,wm8880-pinctrl";
 			reg = <0xd8110000 0x10000>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
@@ -241,16 +247,6 @@
 					enable-reg = <0x250>;
 					enable-bit = <2>;
 				};
-
-				clksdhc3: sdhc3 {
-					#clock-cells = <0>;
-					compatible = "via,vt8500-device-clock";
-					clocks = <&pllb>;
-					divisor-reg = <0x33c>;
-					divisor-mask = <0x3f>;
-					enable-reg = <0x250>;
-					enable-bit = <3>;
-				};
 			};
 		};
 
@@ -274,63 +270,63 @@
 		timer@d8130100 {
 			compatible = "via,vt8500-timer";
 			reg = <0xd8130100 0x28>;
-			interrupts = <36>;
+			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
 		ehci@d8007900 {
 			compatible = "via,vt8500-ehci";
 			reg = <0xd8007900 0x200>;
-			interrupts = <26>;
+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
-		usb@d8007b00 {
+		uhci@d8007b00 {
 			compatible = "platform-uhci";
 			reg = <0xd8007b00 0x200>;
-			interrupts = <26>;
+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
-		usb@d8008d00 {
+		uhci@d8008d00 {
 			compatible = "platform-uhci";
 			reg = <0xd8008d00 0x200>;
-			interrupts = <26>;
+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
 		uart0: serial@d8200000 {
-			compatible = "via,vt8500-uart";
+			compatible = "wm,wm8880-uart";
 			reg = <0xd8200000 0x1040>;
-			interrupts = <32>;
+			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clkuart0>;
 			status = "disabled";
 		};
 
 		uart1: serial@d82b0000 {
-			compatible = "via,vt8500-uart";
+			compatible = "wm,wm8880-uart";
 			reg = <0xd82b0000 0x1040>;
-			interrupts = <33>;
+			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clkuart1>;
 			status = "disabled";
 		};
 
                 uart2: serial@d8210000 {
-                        compatible = "via,vt8500-uart";
-                        reg = <0xd8210000 0x1040>;
-                        interrupts = <47>;
-                        clocks = <&clkuart2>;
+			compatible = "wm,wm8880-uart";
+			reg = <0xd8210000 0x1040>;
+			interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clkuart2>;
 			status = "disabled";
                 };
 
                 uart3: serial@d82c0000 {
-                        compatible = "via,vt8500-uart";
-                        reg = <0xd82c0000 0x1040>;
-                        interrupts = <50>;
-                        clocks = <&clkuart3>;
+			compatible = "wm,wm8880-uart";
+			reg = <0xd82c0000 0x1040>;
+			interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clkuart3>;
 			status = "disabled";
                 };
 
 		rtc@d8100000 {
 			compatible = "via,vt8500-rtc";
 			reg = <0xd8100000 0x10000>;
-			interrupts = <48>;
+			interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
 		sf@d8002000 {
@@ -370,10 +366,11 @@
 			};
 		};
 
-		sdmmc0: sdhc@d800a000 {
+		sdhc@d800a000 {
 			compatible = "wm,wm8505-sdhc";
 			reg = <0xd800a000 0x400>;
-			interrupts = <20 21>;
+			interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clksdhc>;
 			bus-width = <4>;
 			sdon-inverted;
@@ -382,37 +379,21 @@
 		sdmmc1: sdhc@d800a400 {
 			compatible = "wm,wm8505-sdhc";
 			reg = <0xd800a400 0x400>;
-			interrupts = <1 2>;
+			interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clksdhc1>;
 			bus-width = <4>;
 			sdon-inverted;
-			status = "disabled";
 		};
 
 		sdmmc2: sdhc@d800a800 {
 			compatible = "wm,wm8505-sdhc";
 			reg = <0xd800a800 0x400>;
-			interrupts = <11 12>;
+			interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clksdhc2>;
 			bus-width = <4>;
 			sdon-inverted;
-			status = "disabled";
 		};
-
-		sdmmc3: sdhc@d800ac00 {
-			compatible = "wm,wm8505-sdhc";
-			reg = <0xd800ac00 0x400>;
-			interrupts = <13 14>;
-			clocks = <&clksdhc3>;
-			bus-width = <4>;
-			sdon-inverted;
-			status = "disabled";
-		};
-
-		ethernet@d8004000 {
-			compatible = "via,vt8500-rhine";
-			reg = <0xd8004000 0x100>;
-			interrupts = <10>;
-                };
 	};
 };
