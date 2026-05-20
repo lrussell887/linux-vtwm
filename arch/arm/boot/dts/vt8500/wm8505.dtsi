@@ -229,6 +229,13 @@
 			interrupts = <36>;
 		};
 
+		ethernet@d8004000 {
+			compatible = "via,velocity-vt6110";
+			reg = <0xd8004000 0x400>;
+			interrupts = <10>;
+			no-eeprom;
+		};
+
 		usb@d8007100 {
 			compatible = "via,vt8500-ehci";
 			reg = <0xd8007100 0x200>;
@@ -239,6 +246,16 @@
 			compatible = "platform-uhci";
 			reg = <0xd8007300 0x200>;
 			interrupts = <0>;
+		};
+
+		keyboard@d8008800 {
+			compatible = "intel,8042";
+			reg = <0xd8008800 0x100>;
+			interrupts = <23>, <4>;
+			command-reg = <0x04>;
+			status-reg = <0x04>;
+			data-reg = <0x00>;
+			init-reset;
 		};
 
 		mmc@d800a000 {
