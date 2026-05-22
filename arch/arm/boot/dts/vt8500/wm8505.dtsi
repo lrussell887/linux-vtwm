@@ -174,6 +174,15 @@
 					clock-output-names = "sdhc";
 				};
 
+				clkuhc: clock-uhc {
+					compatible = "via,vt8500-device-clock";
+					#clock-cells = <0>;
+					clocks = <&clkahb>;
+					enable-bit = <7>;
+					enable-reg = <0x254>;
+					clock-output-names = "uhc";
+				};
+
 				clkuart0: clock-uart0 {
 					compatible = "via,vt8500-device-clock";
 					#clock-cells = <0>;
@@ -288,12 +297,14 @@
 			compatible = "via,vt8500-ehci";
 			reg = <0xd8007100 0x200>;
 			interrupts = <1>;
+			clocks = <&clkuhc>;
 		};
 
 		usb@d8007300 {
 			compatible = "platform-uhci";
 			reg = <0xd8007300 0x200>;
 			interrupts = <0>;
+			clocks = <&clkuhc>;
 		};
 
 		keyboard@d8008800 {
