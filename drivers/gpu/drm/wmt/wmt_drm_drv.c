@@ -114,10 +114,22 @@ static int wmt_drm_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
-	/* Enable DVO clock */
-	wmt->clk = devm_clk_get_enabled(dev, NULL);
-	if (IS_ERR(wmt->clk))
-		return dev_err_probe(dev, PTR_ERR(wmt->clk), "Failed to get/enable display clock\n");
+	/* Enable clocks */
+	wmt->clk_dvo = devm_clk_get_enabled(dev, "dvo");
+	if (IS_ERR(wmt->clk_dvo))
+		return dev_err_probe(dev, PTR_ERR(wmt->clk_dvo), "Failed to get/enable DVO clock\n");
+
+	wmt->clk_govr = devm_clk_get_enabled(dev, "govr");
+	if (IS_ERR(wmt->clk_govr))
+		return dev_err_probe(dev, PTR_ERR(wmt->clk_govr), "Failed to get/enable GOVR clock\n");
+
+	wmt->clk_vpp = devm_clk_get_enabled(dev, "vpp");
+	if (IS_ERR(wmt->clk_vpp))
+		return dev_err_probe(dev, PTR_ERR(wmt->clk_vpp), "Failed to get/enable VPP clock\n");
+
+	wmt->clk_ge = devm_clk_get_enabled(dev, "ge");
+	if (IS_ERR(wmt->clk_ge))
+		return dev_err_probe(dev, PTR_ERR(wmt->clk_ge), "Failed to get/enable GE clock\n");
 
 	/* Configure DMA mask */
 	ret = dma_coerce_mask_and_coherent(dev, DMA_BIT_MASK(32));

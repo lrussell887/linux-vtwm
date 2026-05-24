@@ -57,7 +57,8 @@
 struct wm8505_ac97 {
 	struct device                     *dev;
 	void __iomem                      *regs;
-	struct clk                        *clk;
+	struct clk                        *clk_ac97;
+	struct clk                        *clk_i2s;
 	spinlock_t                         lock;
 	struct snd_dmaengine_dai_dma_data  playback_dma_data;
 	struct snd_dmaengine_dai_dma_data  capture_dma_data;
@@ -394,9 +395,14 @@ static int wm8505_ac97_probe(struct platform_device *pdev)
 	if (IS_ERR(priv->regs))
 		return PTR_ERR(priv->regs);
 
-	priv->clk = devm_clk_get_enabled(&pdev->dev, NULL);
-	if (IS_ERR(priv->clk))
-		return dev_err_probe(&pdev->dev, PTR_ERR(priv->clk), "Failed to get/enable clock\n");
+	/* Enable clocks */
+	priv->clk_ac97 = devm_clk_get_enabled(&pdev->dev, "ac97");
+	if (IS_ERR(priv->clk_ac97))
+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->clk_ac97), "Failed to get/enable AC97 clock\n");
+
+	priv->clk_i2s = devm_clk_get_enabled(&pdev->dev, "i2s");
+	if (IS_ERR(priv->clk_i2s))
+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->clk_i2s), "Failed to get/enable I2S clock\n");
 
 	/*
 	 * Route hardware pins to AC97 instead of I2S.

@@ -121,7 +121,11 @@ struct wmt_drm_device {
 
 	void __iomem *vpp_regs;
 	void __iomem *govr_regs;
-	struct clk *clk;
+
+	struct clk *clk_dvo;
+	struct clk *clk_govr;
+	struct clk *clk_vpp;
+	struct clk *clk_ge;
 
 	void __iomem *ge_regs;
 	struct mutex ge_mutex;

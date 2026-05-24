@@ -8,6 +8,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/clock/wm8505-clock.h>
 
 / {
 	compatible = "wm,wm8505";
@@ -39,6 +40,27 @@
 		reg = <0x0 0x0>;
 	};
 
+	osc24m: clock-24000000 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "osc24m";
+	};
+
+	osc25m: clock-25000000 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
+		clock-output-names = "osc25m";
+	};
+
+	clkaud: clock-24576000 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24576000>;
+		clock-output-names = "clkaud";
+	};
+
 	soc {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -47,196 +69,11 @@
 		interrupt-parent = <&intc0>;
 
 		pmc: clock-controller@d8130000 {
-			compatible = "via,vt8500-pmc";
+			compatible = "wm,wm8505-pmc";
 			reg = <0xd8130000 0x1000>;
-
-			clocks {
-				#address-cells = <1>;
-				#size-cells = <0>;
-
-				ref24: clock-24000000 {
-					compatible = "fixed-clock";
-					#clock-cells = <0>;
-					clock-frequency = <24000000>;
-					clock-output-names = "ref24M";
-				};
-
-				ref25: clock-25000000 {
-					compatible = "fixed-clock";
-					#clock-cells = <0>;
-					clock-frequency = <25000000>;
-					clock-output-names = "ref25M";
-				};
-
-				plla: clock@200 {
-					compatible = "via,vt8500-pll-clock";
-					reg = <0x200>;
-					#clock-cells = <0>;
-					clocks = <&ref25>;
-					clock-output-names = "plla";
-				};
-
-				pllb: clock@204 {
-					compatible = "via,vt8500-pll-clock";
-					reg = <0x204>;
-					#clock-cells = <0>;
-					clocks = <&ref25>;
-					clock-output-names = "pllb";
-				};
-
-				pllc: clock@208 {
-					compatible = "via,vt8500-pll-clock";
-					reg = <0x208>;
-					#clock-cells = <0>;
-					clocks = <&ref25>;
-					clock-output-names = "pllc";
-				};
-
-				plld: clock@20c {
-					compatible = "via,vt8500-pll-clock";
-					reg = <0x20c>;
-					#clock-cells = <0>;
-					clocks = <&ref25>;
-					clock-output-names = "plld";
-				};
-
-				clkac97: clock-ac97 {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&pllb>;
-					enable-bit = <19>;
-					enable-reg = <0x250>;
-					clock-output-names = "ac97";
-				};
-
-				clkahb: clock-ahb {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&pllb>;
-					divisor-reg = <0x304>;
-					clock-output-names = "ahb";
-				};
-
-				clkapb: clock-apb {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&pllb>;
-					divisor-reg = <0x350>;
-					clock-output-names = "apb";
-				};
-
-				clkarm: clock-arm {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&plla>;
-					divisor-reg = <0x300>;
-					clock-output-names = "arm";
-				};
-
-				clkddr: clock-ddr {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&plld>;
-					divisor-reg = <0x310>;
-					clock-output-names = "ddr";
-				};
-
-				clkdvo: clock-dvo {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&pllc>;
-					divisor-mask = <0x1f>;
-					divisor-reg = <0x374>;
-					enable-bit = <18>;
-					enable-reg = <0x250>;
-					clock-output-names = "dvo";
-				};
-
-				clkpwm: clock-pwm {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&pllb>;
-					divisor-mask = <0x1f>;
-					divisor-reg = <0x348>;
-					enable-bit = <10>;
-					enable-reg = <0x250>;
-					clock-output-names = "pwm";
-				};
-
-				clksdhc: clock-sdhc {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&pllb>;
-					divisor-mask = <0x3f>;
-					divisor-reg = <0x328>;
-					enable-bit = <18>;
-					enable-reg = <0x254>;
-					clock-output-names = "sdhc";
-				};
-
-				clkuhc: clock-uhc {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&clkahb>;
-					enable-bit = <7>;
-					enable-reg = <0x254>;
-					clock-output-names = "uhc";
-				};
-
-				clkuart0: clock-uart0 {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&ref24>;
-					enable-bit = <1>;
-					enable-reg = <0x250>;
-					clock-output-names = "uart0";
-				};
-
-				clkuart1: clock-uart1 {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&ref24>;
-					enable-bit = <2>;
-					enable-reg = <0x250>;
-					clock-output-names = "uart1";
-				};
-
-				clkuart2: clock-uart2 {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&ref24>;
-					enable-bit = <3>;
-					enable-reg = <0x250>;
-					clock-output-names = "uart2";
-				};
-
-				clkuart3: clock-uart3 {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&ref24>;
-					enable-bit = <4>;
-					enable-reg = <0x250>;
-					clock-output-names = "uart3";
-				};
-
-				clkuart4: clock-uart4 {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&ref24>;
-					enable-bit = <22>;
-					enable-reg = <0x250>;
-					clock-output-names = "uart4";
-				};
-
-				clkuart5: clock-uart5 {
-					compatible = "via,vt8500-device-clock";
-					#clock-cells = <0>;
-					clocks = <&ref24>;
-					enable-bit = <23>;
-					enable-reg = <0x250>;
-					clock-output-names = "uart5";
-				};
-			};
+			#clock-cells = <1>;
+			clocks = <&osc24m>, <&osc25m>, <&clkaud>;
+			clock-names = "osc24m", "osc25m", "clkaud";
 		};
 
 		intc0: interrupt-controller@d8140000 {
@@ -262,6 +99,7 @@
 			#interrupt-cells = <2>;
 			gpio-controller;
 			#gpio-cells = <2>;
+			clocks = <&pmc WM8505_CLK_GPIO>;
 
 			ac97_pins: ac97 {
 				wm,pins = <192 193 194 195 196>;
@@ -282,7 +120,7 @@
 					      <&intc0 41>, <&intc0 45>, <&intc0 46>, <&intc0 51>,
 					      <&intc1 28>, <&intc1 29>, <&intc1 30>, <&intc1 31>,
 					      <&intc1 32>, <&intc1 33>, <&intc1 34>, <&intc1 35>;
-			clocks = <&clkahb>;
+			clocks = <&pmc WM8505_CLK_DMA>;
 			#dma-cells = <1>;
 		};
 
@@ -291,20 +129,21 @@
 			reg = <0xd8004000 0x400>;
 			interrupts = <10>;
 			no-eeprom;
+			clocks = <&pmc WM8505_CLK_MAC0>;
 		};
 
 		usb@d8007100 {
 			compatible = "via,vt8500-ehci";
 			reg = <0xd8007100 0x200>;
 			interrupts = <1>;
-			clocks = <&clkuhc>;
+			clocks = <&pmc WM8505_CLK_UHC>;
 		};
 
 		usb@d8007300 {
 			compatible = "platform-uhci";
 			reg = <0xd8007300 0x200>;
 			interrupts = <0>;
-			clocks = <&clkuhc>;
+			clocks = <&pmc WM8505_CLK_UHC>;
 		};
 
 		keyboard@d8008800 {
@@ -315,13 +154,14 @@
 			status-reg = <0x04>;
 			data-reg = <0x00>;
 			init-reset;
+			clocks = <&pmc WM8505_CLK_PS2KBDC>;
 		};
 
 		mmc@d800a000 {
 			compatible = "wm,wm8505-sdhc";
 			reg = <0xd800a000 0x400>;
 			interrupts = <20>, <21>;
-			clocks = <&clksdhc>;
+			clocks = <&pmc WM8505_CLK_SDHC>;
 			bus-width = <4>;
 		};
 
@@ -337,7 +177,11 @@
 			wmt,ge = <&graphics>;
 			interrupt-parent = <&intc1>;
 			interrupts = <16>;
-			clocks = <&clkdvo>;
+			clocks = <&pmc WM8505_CLK_DVO>,
+				 <&pmc WM8505_CLK_GOVRHD>,
+				 <&pmc WM8505_CLK_VPP>,
+				 <&pmc WM8505_CLK_GE>;
+			clock-names = "dvo", "govr", "vpp", "ge";
 			status = "disabled";
 
 			port {
@@ -349,13 +193,14 @@
 			compatible = "via,vt8500-rtc";
 			reg = <0xd8100000 0x10000>;
 			interrupts = <48>;
+			clocks = <&pmc WM8505_CLK_RTC>;
 		};
 
 		uart0: serial@d8200000 {
 			compatible = "via,vt8500-uart";
 			reg = <0xd8200000 0x1040>;
 			interrupts = <32>;
-			clocks = <&clkuart0>;
+			clocks = <&pmc WM8505_CLK_UART0>;
 			status = "disabled";
 		};
 
@@ -363,7 +208,7 @@
 			compatible = "via,vt8500-uart";
 			reg = <0xd8210000 0x1040>;
 			interrupts = <47>;
-			clocks = <&clkuart2>;
+			clocks = <&pmc WM8505_CLK_UART2>;
 			status = "disabled";
 		};
 
@@ -371,7 +216,7 @@
 			compatible = "via,vt8500-pwm";
 			reg = <0xd8220000 0x10000>;
 			#pwm-cells = <2>;
-			clocks = <&clkpwm>;
+			clocks = <&pmc WM8505_CLK_PWM>;
 			status = "disabled";
 		};
 
@@ -379,7 +224,9 @@
 			compatible = "wm,wm8505-ac97";
 			reg = <0xd8290000 0x10000>;
 			interrupts = <42>;
-			clocks = <&clkac97>;
+			clocks = <&pmc WM8505_CLK_AC97>,
+				 <&pmc WM8505_CLK_I2S>;
+			clock-names = "ac97", "i2s";
 			dmas = <&dmac 18>, <&dmac 19>;
 			dma-names = "tx", "rx";
 			pinctrl-names = "default";
@@ -391,7 +238,7 @@
 			compatible = "via,vt8500-uart";
 			reg = <0xd82b0000 0x1040>;
 			interrupts = <33>;
-			clocks = <&clkuart1>;
+			clocks = <&pmc WM8505_CLK_UART1>;
 			status = "disabled";
 		};
 
@@ -399,7 +246,7 @@
 			compatible = "via,vt8500-uart";
 			reg = <0xd82c0000 0x1040>;
 			interrupts = <50>;
-			clocks = <&clkuart3>;
+			clocks = <&pmc WM8505_CLK_UART3>;
 			status = "disabled";
 		};
 
@@ -407,7 +254,7 @@
 			compatible = "via,vt8500-uart";
 			reg = <0xd8370000 0x1040>;
 			interrupts = <31>;
-			clocks = <&clkuart4>;
+			clocks = <&pmc WM8505_CLK_UART4>;
 			status = "disabled";
 		};
 
@@ -415,7 +262,7 @@
 			compatible = "via,vt8500-uart";
 			reg = <0xd8380000 0x1040>;
 			interrupts = <30>;
-			clocks = <&clkuart5>;
+			clocks = <&pmc WM8505_CLK_UART5>;
 			status = "disabled";
 		};
 	};

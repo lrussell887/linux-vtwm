@@ -30,31 +30,14 @@ static void wmt_govr_set_timing(struct wmt_drm_device *wmt,
 				const struct drm_display_mode *mode)
 {
 	unsigned long t_rate = mode->clock * 1000;
-	unsigned long best_pll = 0;
-	unsigned long best_diff = ~0UL;
-	struct clk *parent = clk_get_parent(wmt->clk);
-	u32 div;
-	long pll;
 	int h_sync, h_bp, h_fp, h_start, h_end, h_all;
 	int v_sync, v_bp, v_fp, v_start, v_end, v_all;
 
-	/* Calculate pixel clock by iterating up to max divisor */
-	for (div = 1; div <= 31 && best_diff; div++) {
-		pll = clk_round_rate(parent, t_rate * div);
-		if (pll > 0) {
-			unsigned long diff = abs_diff(pll / div, t_rate);
-			if (diff < best_diff) {
-				best_diff = diff;
-				best_pll = pll;
-			}
-		}
-	}
-
-	clk_set_rate(parent, best_pll);
-	clk_set_rate(wmt->clk, t_rate);
+	/* Set pixel clock */
+	clk_set_rate(wmt->clk_dvo, t_rate);
 
 	/* Apply the divider */
-	writel((max_t(u32, DIV_ROUND_CLOSEST(clk_get_rate(wmt->clk), t_rate), 1) - 1) & GENMASK(6, 0),
+	writel((max_t(u32, DIV_ROUND_CLOSEST(clk_get_rate(wmt->clk_dvo), t_rate), 1) - 1) & GENMASK(6, 0),
 	       wmt->govr_regs + WMT_GOVR_READ_CYC);
 
 	/* Calculate display geometry offsets */
